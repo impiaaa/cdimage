@@ -34,7 +34,7 @@ pub trait Image {
     fn image_format(&self) -> String;
 
     /// Read a single sector at the given MSF
-    fn read_sector(&mut self, &mut Sector, Msf) -> Result<(), CdError>;
+    fn read_sector(&self, &mut Sector, Msf) -> Result<(), CdError>;
 
     /// Return the absolute Msf for the position `track_msf` in
     /// `track`. Will return an error if the `track_msf` is outside of

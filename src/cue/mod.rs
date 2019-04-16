@@ -45,7 +45,7 @@ impl Image for Cue {
         "CUE".to_string()
     }
 
-    fn read_sector(&mut self,
+    fn read_sector(&self,
                    sector: &mut Sector,
                    msf: Msf) -> Result<(), CdError> {
         let (pos, index) =
@@ -91,7 +91,7 @@ impl Image for Cue {
         // First let's read the sector data
         match index.private() {
             &Storage::Bin(bin, offset, ty) => {
-                let bin = &mut self.bin_files[bin as usize];
+                let bin = &self.bin_files[bin as usize];
 
                 // For now we only support "simple sector" format
                 if ty.sector_size() != 2352 {
@@ -105,9 +105,10 @@ impl Image for Cue {
 
                 let res =
                     builder.set_data_2352(|data| {
-                        try!(bin.file.seek(SeekFrom::Start(offset)));
+                        let mut file = bin.file.try_clone()?;
+                        try!(file.seek(SeekFrom::Start(offset)));
 
-                        bin.file.read_exact(data)
+                        file.read_exact(data)
                     });
 
                 if let Err(e) = res {
